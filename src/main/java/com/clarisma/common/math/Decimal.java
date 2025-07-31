@@ -22,58 +22,74 @@ public class Decimal extends Number
 	{
 		return new Decimal(parse(s, false));
 	}
-	
+
 	public static long parse(String s, boolean strict)
 	{
-		long value = 0;
-		int scale = 0;
-		boolean seenDigit = false;
-		boolean seenNonZeroDigit = false;
-		boolean seenDot = false;
-		boolean negative = false;
 		int len = s.length();
-		for(int i=0; i<len; i++)
+		if (len == 1 && s.charAt(0) == '0')          // fast path for "0"
+			return 0;
+
+		long value = 0;
+		int  scale = 0;
+		boolean seenDigit        = false;
+		boolean seenNonZeroDigit = false;
+		boolean seenDot          = false;
+		boolean negative         = false;
+
+		for (int i = 0; i < len; i++)
 		{
 			char ch = s.charAt(i);
-			if(ch=='-')
+
+			// sign
+			if (ch == '-')
 			{
-				if(i != 0) return INVALID;
+				if (i != 0) return INVALID;
 				negative = true;
 				continue;
 			}
-			if(ch=='0') 
+
+			// zero
+			if (ch == '0')
 			{
-				if(len==1) return 0;
-				if(strict && seenDigit && !seenNonZeroDigit) return INVALID;
+				// reject 0-prefixed integers in strict mode (e.g. "06800")
+				if (strict && !seenDigit)
+				{
+					char next = (i + 1 < len) ? s.charAt(i + 1) : '\0';
+					if (next >= '0' && next <= '9') return INVALID;
+				}
 				value *= 10;
 				seenDigit = true;
-				if(seenDot) scale++;
+				if (seenDot) scale++;
 				continue;
 			}
-			if(ch=='.')
+
+			// decimal point
+			if (ch == '.')
 			{
-				if(seenDot) return INVALID;
-				if(strict && !seenDigit) return INVALID;
+				if (seenDot) return INVALID;
+				if (strict && !seenDigit) return INVALID;
 				seenDot = true;
 				continue;
 			}
-			if(ch < '0' || ch > '9') return INVALID;
-			seenDigit = true;
+
+			// 1-9
+			if (ch < '0' || ch > '9') return INVALID;
+			seenDigit        = true;
 			seenNonZeroDigit = true;
-			value = value * 10 + (ch-'0');
-			if((value & 0xf800_0000_0000_0000l) != 0) return INVALID; 
-			if(seenDot) scale++;
+			value = value * 10 + (ch - '0');
+			if ((value & 0xf800_0000_0000_0000L) != 0) return INVALID; // overflow
+			if (seenDot) scale++;
 		}
-		if(value==0)
+
+		// post-validation
+		if (value == 0)
 		{
-			if(seenDot && !seenDigit) return INVALID;
-			if(strict)
-			{
-				if(negative || scale==0) return INVALID;
-			}
+			if (seenDot && !seenDigit) return INVALID;
+			if (strict && (negative || scale == 0)) return INVALID;
 		}
-		if(strict && seenDot && scale==0) return INVALID; 
-		if(scale > 15) return INVALID;
+		if (strict && seenDot && scale == 0) return INVALID;
+		if (scale > 15) return INVALID;
+
 		return ((negative ? -value : value) << 4) | scale;
 	}
 	

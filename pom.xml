@@ -4,7 +4,7 @@
 
   <groupId>com.geodesk</groupId>
   <artifactId>geodesk</artifactId>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.0.3</version>
   <packaging>jar</packaging>
 
   <name>GeoDesk</name>
@@ -36,9 +36,9 @@
   </developers>
 
   <scm>
-	<connection>scm:git:git://github.com/clarisma/geodesk.git</connection>
-	<developerConnection>scm:git:ssh://github.com:clarisma/geodesk.git</developerConnection>
-	<url>http://github.com/clarisma/geodesk/tree/main</url>
+	<connection>scm:git:git://github.com/laurentpellegrino/geodesk.git</connection>
+	<developerConnection>scm:git:ssh://github.com:laurentpellegrino/geodesk.git</developerConnection>
+	<url>http://github.com/laurentpellegrino/geodesk/tree/main</url>
   </scm>
 
   <dependencies>
@@ -175,13 +175,10 @@
 </profiles>
 
   <distributionManagement>
-	<snapshotRepository>
-		<id>ossrh</id>
-		<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-	</snapshotRepository>
 	<repository>
-		<id>ossrh</id>
-		<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		<id>github</id>
+		<name>GitHub Packages</name>
+		<url>https://maven.pkg.github.com/laurentpellegrino/geodesk</url>
 	</repository>
   </distributionManagement>
 
